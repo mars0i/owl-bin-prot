@@ -24,7 +24,8 @@ let time2 f x y =
     result
 
 
-type serialized = {shape : int array ; buf : Bin_prot.Common.buf}
+type serialized = 
+  {shape : int array ; buf : Bin_prot.Common.buf} [@@deriving bin_io]
 
 (** Multiply together elements of a numeric array. *)
 let mult_array_elts ra = Array.fold_left ( * ) 1 ra
@@ -58,7 +59,7 @@ let load_serialized filename =
     let stats = Core.Unix.fstat fd in  (* Will this work correctly on symbolic links? If not use stat on the filename. *)
     let size = Int64.to_int (stats.st_size) in
     let buf = Bin_prot.Common.create_buf size in
-    let nread = Core.Bigstring.read ~pos:0 ~len:size fd buf in  
+    ignore (Core.Bigstring.read ~pos:0 ~len:size fd buf);
     {shape = [|size|]; buf=buf} (* Is size correct?? NO! TODO KLUDGE *)
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
