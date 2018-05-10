@@ -12,15 +12,9 @@ module NDG = Owl.Dense.Ndarray.Generic
 open Bin_prot.Std (* for @@deriving bin_prot *)
 
 
-let time1 f x =
+let time f =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
-    let result = f x in
-    Printf.printf "cpu: %fs, wall: %fs\n%!" (Sys.time() -. cpu_time) (Unix.gettimeofday() -. wall_time);
-    result
-
-let time2 f x y =
-    let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
-    let result = f x y in
+    let result = f () in
     Printf.printf "cpu: %fs, wall: %fs\n%!" (Sys.time() -. cpu_time) (Unix.gettimeofday() -. wall_time);
     result
 
@@ -43,6 +37,7 @@ let serialize x =
   let buf = Bin_prot.Common.create_buf bufsize in 
   ignore (Bin_prot.Write.bin_write_float64_vec buf 0 ba1);
   {dims; buf}
+  (* BUG this is only writing out the data, but I need it o write the dims as well. *)
 
 let save_serialized sed filename =
   let {dims; buf} = sed in
@@ -61,7 +56,7 @@ let load_serialized filename =
     let size = Int64.to_int (stats.st_size) in
     let buf = Bin_prot.Common.create_buf size in
     ignore (Core.Bigstring.read ~pos:0 ~len:size fd buf);
-    {dims = [|size|]; buf=buf} (* Is size correct?? NO! TODO KLUDGE *)
+    {dims = [|size|]; buf=buf} (* Is this correct?? NO! TODO KLUDGE *)
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
 (*
