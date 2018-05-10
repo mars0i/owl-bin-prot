@@ -29,6 +29,7 @@ let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
 
 let calc_bin_prot_size ba1 len =
   1 + len + (Bin_prot.Size.bin_size_float64_vec ba1)  (* IS THIS RIGHT? WHY? *)
+  (* I think maybe the last term is all that's needed *)
 
 let serialize x =
   let dims = Owl.Dense.Ndarray.Generic.shape x in
