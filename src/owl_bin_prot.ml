@@ -9,6 +9,36 @@ module BP = Bin_prot
 module NDG = Owl.Dense.Ndarray.Generic
 *)
 
+(*  TIPS 5/10/2018
+
+See https://discuss.ocaml.org/t/how-to-use-deriving-bin-io-with-ucommon-types/1976/4?u=mars0i
+
+Note:
+
+require "ppx_bin_prot";;
+open Bin_prot.Std;;
+type vec = Bin_prot.Common.vec;;
+
+let bin_read_vec = Bin_prot.Read.bin_read_vec;;
+let bin_shape_vec = Bin_prot.Shape.bin_shape_vec;;
+let bin_size_vec = Bin_prot.Size.bin_size_vec;;
+let bin_write_vec = Bin_prot.Write.bin_write_vec;;
+
+type foo = { a : int array ; b : vec } [@@deriving bin_io];;
+
+let x = {a = [|1;2;3|]; b = Bigarray.reshape_1 (Bigarray.Genarray.change_layout (Owl.Mat.sequential 2 3) Bigarray.fortran_layout) 6};;
+
+bin_size_foo x;;
+let bufref = ref (Bin_prot.Common.create_buf 53;;
+let buf = Bin_prot.Common.create_buf 53;;
+bin_write_foo buf 0 x;;
+let newpos = ref 0;;
+let y = bin_read_foo buf newpos;;
+x = y;;
+
+*)
+
+
 open Bin_prot.Std (* for @@deriving bin_prot *)
 
 
