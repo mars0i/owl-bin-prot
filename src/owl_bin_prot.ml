@@ -20,19 +20,22 @@ let time f =
 
 
 type serialized = 
-  {dims : int array ; buf : Bin_prot.Common.buf} [@@deriving bin_io]
+  {dims : int array ;
+   bigarray1 : (float, CamlinternalBigarray.float64_elt, CamlinternalBigarray.fortran_layout) Bigarray.Array1.t
+  } [@@deriving bin_io]
 
 (** Multiply together elements of a numeric array. *)
-let mult_array_elts ra = Array.fold_left ( * ) 1 ra
+let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
 
 let calc_bin_prot_size ba1 len =
   1 + len + (Bin_prot.Size.bin_size_float64_vec ba1)  (* IS THIS RIGHT? WHY? *)
 
 let serialize x =
   let dims = Owl.Dense.Ndarray.Generic.shape x in
-  let len = mult_array_elts dims in
+  let len = multiply_array_elts dims in
   let x' = Bigarray.Genarray.change_layout x Bigarray.fortran_layout in
   let ba1 = Bigarray.reshape_1 x' len in
+
   let bufsize = calc_bin_prot_size ba1 len in
   let buf = Bin_prot.Common.create_buf bufsize in 
   ignore (Bin_prot.Write.bin_write_float64_vec buf 0 ba1);
