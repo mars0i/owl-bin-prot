@@ -9,7 +9,8 @@ module BP = Bin_prot
 module NDG = Owl.Dense.Ndarray.Generic
 *)
 
-(* open Bin_prot.Std *)
+open Bin_prot.Std (* for @@deriving bin_prot *)
+
 
 let time1 f x =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
@@ -25,7 +26,7 @@ let time2 f x y =
 
 
 type serialized = 
-  {shape : int array ; buf : Bin_prot.Common.buf} [@@deriving bin_io]
+  {dims : int array ; buf : Bin_prot.Common.buf} [@@deriving bin_io]
 
 (** Multiply together elements of a numeric array. *)
 let mult_array_elts ra = Array.fold_left ( * ) 1 ra
@@ -34,17 +35,17 @@ let calc_bin_prot_size ba1 len =
   1 + len + (Bin_prot.Size.bin_size_float64_vec ba1)  (* IS THIS RIGHT? WHY? *)
 
 let serialize x =
-  let shape = Owl.Dense.Ndarray.Generic.shape x in
-  let len = mult_array_elts shape in
+  let dims = Owl.Dense.Ndarray.Generic.shape x in
+  let len = mult_array_elts dims in
   let x' = Bigarray.Genarray.change_layout x Bigarray.fortran_layout in
   let ba1 = Bigarray.reshape_1 x' len in
-  let size = calc_bin_prot_size ba1 len in
-  let buf = Bin_prot.Common.create_buf size in 
+  let bufsize = calc_bin_prot_size ba1 len in
+  let buf = Bin_prot.Common.create_buf bufsize in 
   ignore (Bin_prot.Write.bin_write_float64_vec buf 0 ba1);
-  {shape; buf}
+  {dims; buf}
 
 let save_serialized sed filename =
-  let {shape; buf} = sed in
+  let {dims; buf} = sed in
   let size = Bin_prot.Common.buf_len buf in
   let write_file fd =
     Core.Bigstring.write fd ~pos:0 ~len:size  buf in
@@ -60,7 +61,7 @@ let load_serialized filename =
     let size = Int64.to_int (stats.st_size) in
     let buf = Bin_prot.Common.create_buf size in
     ignore (Core.Bigstring.read ~pos:0 ~len:size fd buf);
-    {shape = [|size|]; buf=buf} (* Is size correct?? NO! TODO KLUDGE *)
+    {dims = [|size|]; buf=buf} (* Is size correct?? NO! TODO KLUDGE *)
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
 (*
