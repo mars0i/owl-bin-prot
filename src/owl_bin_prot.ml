@@ -33,7 +33,6 @@ let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
     automatically via [[@@deriving bin_io]], which uses [ppx_bin_prot]. 
     These definitions are used in by higher-level serialization functions
     defined here. *)
-    *)
 type flattened = {dims : int array ; data : vec} [@@deriving bin_io]
 
 (** Given a dense matrix/ndarray [x], [serialize x] returns a [bin_prot]
