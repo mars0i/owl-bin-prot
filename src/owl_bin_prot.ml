@@ -37,7 +37,7 @@ let serialize x =
 let save_serialized buf filename =
   let size = buf_len buf in
   let write_file fd = Core.Bigstring.write fd ~pos:0 ~len:size buf in
-  Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file (* O_TRUNC ... What should be done if the file exist? *)
+  Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file (* O_TRUNC ... What should be done if the file exists? *)
 
 let serialize_to_file x filename =
   save_serialized (serialize x) filename
