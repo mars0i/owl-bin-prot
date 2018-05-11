@@ -15,31 +15,19 @@ let time f =
     Printf.printf "cpu: %fs, wall: %fs\n%!" (Sys.time() -. cpu_time) (Unix.gettimeofday() -. wall_time);
     result
 
-(** Multiply together elements of a numeric array. *)
+(** Multiply together all elements of an [int array]. *)
 let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
 
 
-(** Serialization functions
-
-    The following additional functions will automatically be defined in this 
-    module for the type [flattened] via [[@@deriving bin_io]], which uses 
-    [ppx_bin_prot]:
-{{
-val bin_shape_flattened : Bin_prot.Shape.t = <abstr>
-val bin_size_flattened : flattened -> int = <fun>
-val bin_write_flattened : buf -> pos:int -> flattened -> int = <fun>
-val bin_writer_flattened : flattened Bin_prot.Type_class.writer0 = {Bin_prot.Type_class.size = <fun>; write = <fun>}
-val bin_read_flattened : buf -> pos_ref:pos_ref -> flattened = <fun>
-val bin_reader_flattened : flattened Bin_prot.Type_class.reader0 = {Bin_prot.Type_class.read = <fun>; vtag_read = <fun>}
-val bin_flattened : flattened Bin_prot.Type_class.t0 =
-  {Bin_prot.Type_class.shape = <abstr>; writer = {Bin_prot.Type_class.size = <fun>; write = <fun>};
-   reader = {Bin_prot.Type_class.read = <fun>; vtag_read = <fun>}}
-}} *)
-
-(** Type to hold data prior to/after serialization.
-    vec is defined by [Bin_prot.common]; it is a 
-    [(float, float64_elt, fortran_layout) Bigarray.Array1] *)
-
+(** Type [flattened] hold dense matrix/ndarray data prior to/after 
+    serialization.
+    [dims] should contained the dimensions of the original ndarray, and
+    [vec] should contain a flattened version of the ndarray data.
+    ([vec] is defined by [Bin_prot.common]; it is a 
+    [(float, float64_elt, fortran_layout) Bigarray.Array1].) 
+    The functions listed in documentation immediately after this
+    definition are generated automatically via [[@@deriving bin_io]], 
+    which uses [ppx_bin_prot]. *)
 type flattened = {dims : int array ; data : vec} [@@deriving bin_io]
 
 (** Given a dense matrix/ndarray [x], [serialize x] returns a [bin_prot]
@@ -74,6 +62,7 @@ let save_serialized buf filename =
 let serialize_to_file x filename =
   save_serialized (serialize x) filename
 
+(** TODO: Add ocamldoc for load/unserialize functions: *)
 
 let load_serialized filename =
   let read_file fd =
