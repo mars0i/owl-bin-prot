@@ -4,5 +4,6 @@
  ((name        owl_bin_prot)
   (public_name owl_bin_prot)
   (libraries (core owl bin_prot))
+  (preprocess (pps (ppx_bin_prot)))
  ))
 
