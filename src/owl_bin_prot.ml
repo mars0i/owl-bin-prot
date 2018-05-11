@@ -3,6 +3,9 @@
 
 (* TODO: replace ocamldoc with Owl-style annotations *)
 
+(* TODO: I probably should add an mli file.  Consider hiding
+   the ppx_bin_prot-generated functions. *)
+
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
 
@@ -25,9 +28,12 @@ let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
     [vec] should contain a flattened version of the ndarray data.
     ([vec] is defined by [Bin_prot.common]; it is a 
     [(float, float64_elt, fortran_layout) Bigarray.Array1].) 
-    The functions listed in documentation immediately after this
-    definition are generated automatically via [[@@deriving bin_io]], 
-    which uses [ppx_bin_prot]. *)
+    The functions with names beginning with "bin_" listed immediately 
+    after this definition in generated documentation are defined 
+    automatically via [[@@deriving bin_io]], which uses [ppx_bin_prot]. 
+    These definitions are used in by higher-level serialization functions
+    defined here. *)
+    *)
 type flattened = {dims : int array ; data : vec} [@@deriving bin_io]
 
 (** Given a dense matrix/ndarray [x], [serialize x] returns a [bin_prot]
