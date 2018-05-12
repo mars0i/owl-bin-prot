@@ -4,7 +4,9 @@
 (* TODO: replace ocamldoc with Owl-style annotations *)
 
 (* TODO: I probably should add an mli file.  Consider hiding
-   the ppx_bin_prot-generated functions. *)
+   the ppx_bin_prot-generated functions.  (If it's possible to
+   embed some data structure here in a larger structure, maybe
+   those functions need to visible??) *)
 
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
@@ -67,8 +69,9 @@ let save_serialized buf filename =
 let serialize_to_file x filename =
   save_serialized (serialize x) filename
 
-(** TODO: Add ocamldoc for load/unserialize functions: *)
-
+(** [load_serialized filename] reads a serialized [flattened] data structure
+    from file [filename] and returns it in a [bin_prot] buffer structure.
+    This can then be unserialized using [unserialize]. *)
 let load_serialized filename =
   let read_file fd =
     let stats = Core.Unix.fstat fd in  (* Will this work correctly on symbolic links? If not use stat on the filename. *)
@@ -78,11 +81,17 @@ let load_serialized filename =
     buf
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
+(** [unserialize buf] unserializes the [bin_prot] buffer [buf] and
+    returns a matrix or ndarray specified by the [flattened] that
+    is serialized in [buf]. *)
 let unserialize buf =
   let posref = ref 0 in
   let {dims; data} = bin_read_flattened buf posref in
   let still_flat = Bigarray.Array1.change_layout data Bigarray.c_layout in
   Bigarray.reshape (Bigarray.genarray_of_array1 still_flat) dims
 
+(** [unserialize_from_file filename] reads a serialized [flattened] data 
+    structure from file [filename], unserializes the result, and returns
+    the matrix or ndarray specified by the unserialized [flattened]. *)
 let unserialize_from_file filename =
   unserialize (load_serialized filename)
