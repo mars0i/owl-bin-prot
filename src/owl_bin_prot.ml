@@ -3,7 +3,7 @@
 
 (* TODO: replace ocamldoc with Owl-style annotations *)
 
-(* TODO: I probably should add an mli file.  Consider hiding
+(* TODO: Consider hiding
    the ppx_bin_prot-generated functions.  (If it's possible to
    embed some data structure here in a larger structure, maybe
    those functions need to visible??) *)
@@ -11,38 +11,16 @@
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
 
-(** Utility functions *)
-
-(** Run function that has unit arg, print timing info to stdout, and return result. *)
 let time f =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
     let result = f () in
     Printf.printf "cpu: %fs, wall: %fs\n%!" (Sys.time() -. cpu_time) (Unix.gettimeofday() -. wall_time);
     result
 
-(** Multiply together all elements of an [int array]. *)
 let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
 
-
-(** Type [flattened] hold dense matrix/ndarray data prior to/after 
-    serialization.
-    [dims] should contained the dimensions of the original ndarray, and
-    [vec] should contain a flattened version of the ndarray data.
-    ([vec] is defined by [Bin_prot.common]; it is a 
-    [(float, float64_elt, fortran_layout) Bigarray.Array1].) 
-    The functions with names beginning with "bin_" listed immediately 
-    after this definition in generated documentation are defined 
-    automatically via [[@@deriving bin_io]], which uses [ppx_bin_prot]. 
-    These definitions are used in by higher-level serialization functions
-    defined here. *)
 type flattened = {dims : int array ; data : vec} [@@deriving bin_io]
 
-(** Given an Owl ndarray [x], [ndarray_to_flattened x] returns a [flattened]
-    in which the [dims] field contains the dimensions of the original ndarray,
-    and the [data] field contains the same data in a 1D [fortran_layout]
-    [Bigarray.Array1].  (This is used by [serialize], but can also be used
-    by serializatiion functions for more  complicated types in which
-    [flattened]s will be embedded.) *)
 let ndarray_to_flattened x =
   let dims = Owl.Dense.Ndarray.Generic.shape x in
   let len = multiply_array_elts dims in
@@ -50,38 +28,21 @@ let ndarray_to_flattened x =
   let data = Bigarray.reshape_1 x' len in  (* Bigarray.Array1 with float64 and fortran_layout is compatible with Bin_prot's vec *)
   {dims; data}
 
-(** Given a dense matrix/ndarray [x], [serialize x] returns a [bin_prot]
-    buffer structure containing a serialized version of an instance of type 
-    [flattened], i.e. of an array of dimensions of the original ndarray, and 
-    the flattened data from the original ndarray.  A copy of the original
-    ndarray can be recreated from the resulting buffer using [unserialize].
-    The buffer structure can be saved to a file using [save_serialized]. *)
 let serialize x =
   let flat = ndarray_to_flattened x in
   let buf = create_buf (bin_size_flattened flat) in
   ignore (bin_write_flattened buf 0 flat);(* TODO maybe store return bytes read and compare with size and throw exception *)
   buf
 
-(** Given a [bin_prot] buffer created with [serialize], writes it to file
-    [filename].  If the file exists, it will be zeroed out and recreated. 
-    This file can be read using [load_serialized]. *)
 let save_serialized buf filename =
   let size = buf_len buf in
   let write_file fd = Core.Bigstring.write fd ~pos:0 ~len:size buf in
   ignore(Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file) (* O_TRUNC ... What should be done if the file exists? *)
 
-(** Given a dense matrix/ndarray [x], [serialize_to_file x] transforms it
-    into an instance of [flattened], serializes that using [bin_prot], and
-    writes the result to file [filename].  If the file exists, it will be 
-    zeroed out and recreated. The process can be reversed using 
-    [unserialize_from_file]. *)
 let serialize_to_file x filename =
   save_serialized (serialize x) filename
 
 
-(** [load_serialized filename] reads a serialized [flattened] data structure
-    from file [filename] and returns it in a [bin_prot] buffer structure.
-    This can then be unserialized using [unserialize]. *)
 let load_serialized filename =
   let read_file fd =
     let stats = Core.Unix.fstat fd in  (* Will this work correctly on symbolic links? If not use stat on the filename. *)
@@ -91,35 +52,20 @@ let load_serialized filename =
     buf
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
-(** [flattened_to_ndarray flat], where [flat] is a [flattened], returns a new
-    ndarray specified by [flat], i.e. with dimensions [flat.dims] and data from
-    [flat.data]. *)
 let flattened_to_ndarray flat =
   let {dims; data} = flat in
   let still_flat = Bigarray.Array1.change_layout data Bigarray.c_layout in
   Bigarray.reshape (Bigarray.genarray_of_array1 still_flat) dims
 
-(** [unserialize buf] unserializes the [bin_prot] buffer [buf] and
-    returns a matrix or ndarray specified by the [flattened] that
-    is serialized in [buf]. *)
 let unserialize buf =
   let posref = ref 0 in
   let flat = bin_read_flattened buf posref in
   flattened_to_ndarray flat
 
-(** [unserialize_from_file filename] reads a serialized [flattened] data 
-    structure from file [filename], unserializes the result, and returns
-    the matrix or ndarray specified by the unserialized [flattened]. *)
 let unserialize_from_file filename =
   unserialize (load_serialized filename)
 
 
-(** By default [test_serialize] creates an ndarray of size 10x20x30 with 
-    [uniform]; if [~size] is provided, it is multiplied 3 to determine the
-    last dimension.  Then the file is serialized to a temporary file.  The 
-    result is then unserialized from the file and checked to see if the
-    original and copy are equal.  The result of that test is returned. 
-    Total time in each of the two stages is printed to stdout. *)
 let test_serialize ?(size=1) () =
   let xdim, ydim, zdim = 10, 20, 30*size in
   let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
