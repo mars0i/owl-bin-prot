@@ -63,7 +63,7 @@ let serialize x =
 let save_serialized buf filename =
   let size = buf_len buf in
   let write_file fd = Core.Bigstring.write fd ~pos:0 ~len:size buf in
-  Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file (* O_TRUNC ... What should be done if the file exists? *)
+  ignore(Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file) (* O_TRUNC ... What should be done if the file exists? *)
 
 (** Given a dense matrix/ndarray [x], [serialize_to_file x] transforms it
     into an instance of [flattened], serializes that using [bin_prot], and
@@ -103,6 +103,15 @@ let unserialize buf =
     the matrix or ndarray specified by the unserialized [flattened]. *)
 let unserialize_from_file filename =
   unserialize (load_serialized filename)
+
+
+let test_serialize ?(size=1) () =
+  let x = Owl.Arr.uniform [| 1*size ; 2*size ; 3*size |] in
+  let filename = Core.Filename.temp_file "owl_bin_prot_test" "" in
+  serialize_to_file x filename;
+  let x' = unserialize_from_file filename in
+  x = x'
+
 
 (* TODO move next example somewhere else, and use new flattened to/from
    ndarray functions to do it with matrices. *)
