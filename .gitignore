@@ -20,3 +20,4 @@ setup.data
 setup.log
 owl_bin_prot.install
 src/.merlin
+.*.swp
