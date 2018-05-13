@@ -73,6 +73,7 @@ let save_serialized buf filename =
 let serialize_to_file x filename =
   save_serialized (serialize x) filename
 
+
 (** [load_serialized filename] reads a serialized [flattened] data structure
     from file [filename] and returns it in a [bin_prot] buffer structure.
     This can then be unserialized using [unserialize]. *)
@@ -105,12 +106,23 @@ let unserialize_from_file filename =
   unserialize (load_serialized filename)
 
 
+(** By default [test_serialize] creates an ndarray of size 10x20x30 with 
+    [uniform]; if [~size] is provided, it is multiplied 3 to determine the
+    last dimension.  Then the file is serialized to a temporary file.  The 
+    result is then unserialized from the file and checked to see if the
+    original and copy are equal.  The result of that test is returned. 
+    Total time in each of the two stages is printed to stdout. *)
 let test_serialize ?(size=1) () =
-  let x = Owl.Arr.uniform [| 1*size ; 2*size ; 3*size |] in
+  let xdim, ydim, zdim = 10, 20, 30*size in
+  let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
+  Printf.printf "The test ndarray has size %dx%dx%d = %d\n%!" xdim ydim zdim (xdim * ydim * zdim);
   let filename = Core.Filename.temp_file "owl_bin_prot_test" "" in
-  serialize_to_file x filename;
-  let x' = unserialize_from_file filename in
-  x = x'
+  print_endline "serializing:";
+  time (fun () -> serialize_to_file nd filename);
+  print_endline "unserializing:";
+  let nd' = time (fun () -> unserialize_from_file filename) in
+  Core.Unix.unlink filename;
+  nd = nd'
 
 
 (* TODO move next example somewhere else, and use new flattened to/from
