@@ -37,7 +37,12 @@ let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
     defined here. *)
 type flattened = {dims : int array ; data : vec} [@@deriving bin_io]
 
-
+(** Given an Owl ndarray [x], [ndarray_to_flattened x] returns a [flattened]
+    in which the [dims] field contains the dimensions of the original ndarray,
+    and the [data] field contains the same data in a 1D [fortran_layout]
+    [Bigarray.Array1].  (This is used by [serialize], but can also be used
+    by serializatiion functions for more  complicated types in which
+    [flattened]s will be embedded.) *)
 let ndarray_to_flattened x =
   let dims = Owl.Dense.Ndarray.Generic.shape x in
   let len = multiply_array_elts dims in
@@ -86,6 +91,9 @@ let load_serialized filename =
     buf
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
+(** [flattened_to_ndarray flat], where [flat] is a [flattened], returns a new
+    ndarray specified by [flat], i.e. with dimensions [flat.dims] and data from
+    [flat.data]. *)
 let flattened_to_ndarray flat =
   let {dims; data} = flat in
   let still_flat = Bigarray.Array1.change_layout data Bigarray.c_layout in
