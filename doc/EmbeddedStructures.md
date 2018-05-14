@@ -67,6 +67,8 @@ val flats : Owl_bin_prot.flattened list =
 
 (* Save the buffer to a file: *)
 # Owl_bin_prot.save_serialized buf "flats.bin";;
+(* There's nothing very special in this function; you could use some
+   other method for saving the buffer. *)
 
 (* Read the file back in, returning a new buffer: *)
 # let buf' = Owl_bin_prot.load_serialized "flats.bin";;
