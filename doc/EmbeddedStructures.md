@@ -3,7 +3,6 @@ Serializing embedded matrices/ndarrays
 
 What if you want to serialize a complex type that contains Owl dense
 matrices or ndarrays?
-
 You can create a corresponding type in which the `flattened` type is
 embedded.  This is the type that's used as an intermediate storage
 format for Owl matrices/ndarrays.  It's actually instances of
