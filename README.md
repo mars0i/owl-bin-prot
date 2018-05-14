@@ -33,8 +33,3 @@ To build docs: `make doc`.  Then open
 browser.
 
 ```
-make
-
-
-
-
