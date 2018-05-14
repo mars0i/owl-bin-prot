@@ -77,7 +77,7 @@ val flats : Owl_bin_prot.flattened list =
 (* Convert the list of flatteneds back to a list of matrices: *)
 # let mats' = List.map Owl_bin_prot.flattened_to_ndarray flats';;
 
-(* Check that the original and the new version of the data are the same: *)
+(* Check that the original and new versions of the data are the same: *)
 # mats = mats';;
 - : bool = true
 ```
