@@ -1,8 +1,4 @@
 
-(* Other things to try: memory-mapped files? *)
-
-(* TODO: replace ocamldoc with Owl-style annotations *)
-
 (* TODO: Consider hiding
    the ppx_bin_prot-generated functions.  (If it's possible to
    embed some data structure here in a larger structure, maybe
@@ -78,47 +74,3 @@ let test_serialize ?(size=1) () =
   Core.Unix.unlink filename;
   nd = nd'
 
-
-(* TODO move next example somewhere else, and use new flattened to/from
-   ndarray functions to do it with matrices. *)
-
-(** Note that it's also possible to embed the flattened type in a more
-    complex type, defining [bin_prot] access functions using [@@deriving],
-    and then serialize data to a file form using the new functions along
-    with [save_serialized] and [load_serialized].  For example:
-
-{[
-    # #require "ppx_bin_prot";;
-    # open Bin_prot.Std;;
-    # #load "owl_bin_prot.cma";;
-    # type flatlist = Owl_bin_prot.flattened list [@@deriving bin_io];;
-    type flatlist = Owl_bin_prot.flattened list
-    val bin_shape_flatlist : Bin_prot.Shape.t = <abstr>
-    val bin_size_flatlist : Owl_bin_prot.flattened list -> int = <fun>
-    val bin_write_flatlist : Bin_prot.Common.buf -> pos:int -> Owl_bin_prot.flattened list -> int = <fun>
-    val bin_writer_flatlist : Owl_bin_prot.flattened list Bin_prot.Type_class.writer0 = {Bin_prot.Type_class.size = <fun>; write = <fun>}
-    val bin_read_flatlist : Bin_prot.Common.buf -> pos_ref:Bin_prot.Common.pos_ref -> Owl_bin_prot.flattened list = <fun>
-    val bin_reader_flatlist : Owl_bin_prot.flattened list Bin_prot.Type_class.reader0 = {Bin_prot.Type_class.read = <fun>; vtag_read = <fun>}
-    val bin_flatlist : Owl_bin_prot.flattened list Bin_prot.Type_class.t0 =
-      {Bin_prot.Type_class.shape = <abstr>; writer = {Bin_prot.Type_class.size = <fun>; write = <fun>}; reader = {Bin_prot.Type_class.read = <fun>; vtag_read = <fun>}}
-    
-    (* Convert some ndarrays in to 1D fortran_layout at this point.  Here we'll 
-       just make sample data that's already in that form: *)
-    # let v1 = Bigarray.Array1.create Bigarray.float64 Bigarray.fortran_layout 20;;
-    # for i = 1 to 20 do Bigarray.Array1.set v1 i ((float i)**(0.5)) done;;
-    # let v2 = Bigarray.Array1.create Bigarray.float64 Bigarray.fortran_layout 20;;
-    # for i = 1 to 20 do (Bigarray.Array1.set v2 i (float i)) done;;
-    
-    # let flats = [{dims=[|4;5|]; data=v1}; {dims=[|4;5|]; data=v2}];;
-    
-    # let buf = create_buf (bin_size_flattened flats);;
-    # bin_write_flatlist buf 0 flats;;
-    # Owl_bin_prot.save_serialized buf "flats.bin";;
-    
-    # let buf' = Owl_bin_prot.load_serialized "flats.bin";;
-    # let posref = ref 0;;
-    # let flats' = bin_read_flatlist buf' posref;;
-    # flats = flats';;
-    - : bool = true
-]}
-*)
