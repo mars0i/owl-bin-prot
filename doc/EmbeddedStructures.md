@@ -14,7 +14,7 @@ serialization functions, as long as `bin_prot` knows about the
 structures you use to embed the Owl matrices or ndarrays.
 
 Then you can serialize data to a file form using the new functions along
-with [save_serialized] and [load_serialized] from `Owl_bin_prot`.
+with `save_serialized` and `load_serialized` from `Owl_bin_prot`.
 
 Here is an example in `utop`, running it from the repo directory.  Doing
 this in `utop` allows us to see what functions are created by
