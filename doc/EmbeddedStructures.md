@@ -37,9 +37,8 @@ third step below.
 # open Bin_prot.Std;;
 # #load "owl_bin_prot.cma";;
 
-(* Now define an intermediate type for lists of Owl ndarrays, along
+(* Define an intermediate type for lists of Owl ndarrays, along
    with serialization helper functions: *)
-
 # type flatlist = Owl_bin_prot.flattened list [@@deriving bin_io];;
 type flatlist = Owl_bin_prot.flattened list
 val bin_shape_flatlist : Bin_prot.Shape.t = <abstr>
