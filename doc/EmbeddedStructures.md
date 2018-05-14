@@ -60,7 +60,7 @@ val flats : Owl_bin_prot.flattened list =
    {Owl_bin_prot.dims = [|10; 20|]; data = <abstr>};
    {Owl_bin_prot.dims = [|30; 40|]; data = <abstr>}]
 
-(* Serialize the list of flattened to a buffer.  This uses the automatically 
+(* Serialize the list of flatteneds to a buffer using the automatically 
    generated bin_prot functions: *)
 # let buf = Bin_prot.Common.create_buf (bin_size_flatlist flats);;
 # bin_write_flatlist buf 0 flats;;
