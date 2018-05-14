@@ -19,7 +19,7 @@ let x' = Owl_bin_prot.unserialize_from_file "x.bin"
 (* Check that the old and new versions are equal: *)
 x = x'
 ```
-For more finegrained options, see the docs or `src/owl_bin_prot.mli`.
+For more fine-grained options, see the docs or `src/owl_bin_prot.mli`.
 
 To see how to serialize data structures in which Owl matrices or
 ndarrays are embedded, see
