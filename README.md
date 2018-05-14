@@ -30,6 +30,4 @@ To build: `make`.
 
 To build docs: `make doc`.  Then open
 `_build/default/_doc/_html/owl_bin_prot/Owl_bin_prot/index.html` in a
-browser.
-
-```
+browser.  (Or use e.g. `odig odoc` after installing `odig` and `odoc`.)
