@@ -9,7 +9,7 @@ format for Owl matrices/ndarrays.  It's actually instances of
 `flattened` that are serialized.
 
 The idea is that you define the type containing `flattened`s using
-`[@@deriving bin_io], and that will generate special purpose
+`[@@deriving bin_io]`, and that will generate special purpose
 serialization functions, as long as `bin_prot` knows about the
 structures you use to embed the Owl matrices or ndarrays.
 
