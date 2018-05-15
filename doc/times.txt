@@ -1,4 +1,4 @@
-250GB ndarray 
+250GB ndarray in utop (i.e. bytecode)
 (Larger ones don't seem to be writeable on my disk. not sure why.)
 
 # let x = Owl.Arr.uniform [|1000;1000;250|];;
