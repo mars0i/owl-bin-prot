@@ -87,7 +87,9 @@ val test_serialize : ?size:int -> unit -> bool
     automatically via [[@@deriving bin_io]] frm the [flattened] type 
     definition. This process uses [ppx_bin_prot].  The definitions are 
     used by higher-level serialization functions defined here, and can 
-    also be used separately, of course. *)
+    also be used separately, of course. They will also be called if
+    you defined serializable types for embedded matrices/ndarrays using
+    [ppx_bin_prot]. *)
 
 val bin_flattened : flattened Bin_prot.Type_class.t
 
