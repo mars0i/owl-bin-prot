@@ -63,7 +63,7 @@ let unserialize_from_file filename =
 
 
 let test_serialize ?(size=1) () =
-  let xdim, ydim, zdim = 10, 20, 30*size in
+  let xdim, ydim, zdim = 1000, 1000, size in
   let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
   Printf.printf "The test ndarray has size %dx%dx%d = %d\n%!" xdim ydim zdim (xdim * ydim * zdim);
   let filename = Core.Filename.temp_file "owl_bin_prot_test" "" in
