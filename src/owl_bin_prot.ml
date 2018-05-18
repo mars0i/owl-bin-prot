@@ -72,27 +72,28 @@ let unserialize_from_file filename =
 
 (* Move these somewhere else: *)
 
-let test_serialize_once ?(size=1) () =
-  let xdim, ydim, zdim = 1000, 1000, size in
-  let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
-  Printf.printf "The test ndarray has size %dx%dx%d = %d\n%!" xdim ydim zdim (xdim * ydim * zdim);
+let test_serialize_once nd =
   let filename = Core.Filename.temp_file "owl_bin_prot_test" "" in
   let (_, serial_cpu, serial_wall) = time_return_times (fun () -> serialize_to_file nd filename) in
   let (nd', unser_cpu, unser_wall) = time_return_times (fun () -> unserialize_from_file filename) in
   Core.Unix.unlink filename;
   nd = nd', [serial_cpu; serial_wall; unser_cpu; unser_wall]
 
-let test_serialize ?(size=1) cycles =
+[@@@ warning "-8"] (* disable match warning https://stackoverflow.com/a/46006016/1455243 *)
+let test_serialize mb cycles =
+  let xdim, ydim, zdim = 1000, 1000, mb in
+  let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
   let float_cycles = float cycles in
   let init_times = [0.; 0.; 0.; 0.] in
   let times = ref init_times in
   for i = 1 to cycles do
-    let (_, new_times) = test_serialize_once ~size () in
+    let (_, new_times) = test_serialize_once nd in
     times := List.map2 (+.) !times new_times
   done;
   let [avg_serial_cpu; avg_serial_wall; avg_unser_cpu; avg_unser_wall] = 
         List.map (fun x -> x /. float_cycles) !times
   in
-  Printf.printf "\naverage serialization   cpu: %fs, wall: %fs\n%!" 
-  Printf.printf "\naverage unserialization cpu: %fs, wall: %fs\n%!" 
-  Printf.printf "%d trials with %dMB ndarrays\n!" cycles size
+  Printf.printf "average for serialization:   cpu: %fs, wall: %fs\n%!" avg_serial_cpu avg_serial_wall;
+  Printf.printf "average for unserialization: cpu: %fs, wall: %fs\n%!" avg_unser_cpu  avg_unser_wall;
+  Printf.printf "%d trials with %dM-element ndarrays\n!" cycles mb
+[@@@ warning "+8"]

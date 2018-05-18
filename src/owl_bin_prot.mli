@@ -81,13 +81,19 @@ val time_return_times : (unit -> 'a) -> 'a * float * float
 (** Run function that has unit arg, return its result as the first element 
     of a triple.  The other elements are cpu time and wall time. *)
 
-val test_serialize : ?size:int -> int -> unit
-(** By default [test_serialize] creates an ndarray of size 10x20x30 with 
-    [uniform]; if [~size] is provided, it is multiplied 3 to determine the
-    last dimension.  Then the file is serialized to a temporary file.  The 
-    result is then unserialized from the file and checked to see if the
-    original and copy are equal.  The result of that test is returned. 
-    Total time in each of the two stages is printed to stdout. *)
+val test_serialize_once : (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generic.t -> bool * float list
+(** By default [test_serialize] creates an ndarray of size 1000x1000xsize
+    (default: 1) with [Mat.uniform].  Then the file is serialized to a temporary 
+    file.  The result is then unserialized from the file and checked to see if the
+    original and copy are equal.  A pair is returned.  The first element is
+    true or false, depending on whether the unseralied ndarray is equal to the
+    original one.  The second element is a list of four floats, representing
+    cpu time spent serializing and writing to disk, wall time in the same
+    operations, cpu time spent reading from disk and unserializing, and wall 
+    time in those opeations. *)
+
+val test_serialize : int -> int -> unit
+(** TODO *)
 
 
 (** The functions with names beginning with "bin_" below are defined 

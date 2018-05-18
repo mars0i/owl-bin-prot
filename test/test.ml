@@ -8,8 +8,8 @@ let main () =
   let open Sys in (* for argv *)
   let num_args = Array.length argv in
   if num_args <> 3 then usage argv else
-  let size = int_of_string argv.(1) in
+  let mb = int_of_string argv.(1) in
   let cycles = int_of_string argv.(2) in
-  Owl_bin_prot.test_serialize ~size cycles
+  Owl_bin_prot.test_serialize mb cycles
 
 let _ = main ()
