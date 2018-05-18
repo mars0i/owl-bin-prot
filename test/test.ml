@@ -1,4 +1,3 @@
-open Testlib
 
 let usage argv =
   print_string "Tests serializing and unserializing ndarrays to/from disk\n";
