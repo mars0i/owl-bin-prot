@@ -6,6 +6,7 @@ let usage argv =
                "collection between serialize and unserialize events (defaults to \"false\").\n");
   exit 1
 
+(* Yeah, arg handling is quick and dirty. Easier than any command line package.*)
 let main () =
   let open Sys in (* for argv *)
   let num_args = Array.length argv in
@@ -13,6 +14,6 @@ let main () =
   let mb = int_of_string argv.(1) in
   let cycles = int_of_string argv.(2) in
   let gc = if num_args = 4 then bool_of_string argv.(3) else false in
-  Owl_bin_prot.Serialise.test_serialize ~gc mb cycles
+  Owl_bin_prot.Test_lib.test_serialise ~gc mb cycles
 
 let _ = main ()
