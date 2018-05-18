@@ -1,6 +1,6 @@
 
 let usage argv =
-  print_string "Serializes and unserializes ndarrays to/from disk\n";
+  print_string "Tests serializing and unserializing ndarrays to/from disk\n";
   Printf.printf "Usage: %s megabytes_in_file number_of_cycles\n" argv.(0);
   exit 1
 
