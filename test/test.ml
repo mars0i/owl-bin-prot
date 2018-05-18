@@ -1,12 +1,14 @@
-module Owl_bin_prot = OBP
-Module OS = Bos.OS
+
+let usage argv =
+  Printf.printf "Usage: %s megabytes_in_file number_of_cycles\n" argv.(0);
+  exit 1
 
 let main () =
-  let depth =
-    OS.Arg.(opt ["m"; "megabytes"] int ~absent:2 ~doc:"Number of megabytes of a test ndarray to serialize.")
-  in
-  let pos_args = OS.Arg.(parse ~pos:string ()) in
-  (* No command line error or help request occured, run the program. *)
-  OBP.test_serialize ~size:
+  let open Sys in (* for argv *)
+  let num_args = Array.length argv in
+  if num_args <> 3 then usage argv else
+  let size = int_of_string argv.(1) in
+  let cycles = int_of_string argv.(2) in
+  Owl_bin_prot.test_serialize ~size cycles
 
-let main () = main ()
+let _ = main ()
