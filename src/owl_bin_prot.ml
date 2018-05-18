@@ -8,6 +8,7 @@ open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
 
 (* These should go somewhere else *)
+
 let time_print_return f =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
     let result = f () in
@@ -76,21 +77,22 @@ let test_serialize_once ?(size=1) () =
   let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
   Printf.printf "The test ndarray has size %dx%dx%d = %d\n%!" xdim ydim zdim (xdim * ydim * zdim);
   let filename = Core.Filename.temp_file "owl_bin_prot_test" "" in
-  print_endline "serializing:";
-  time_print_return (fun () -> serialize_to_file nd filename);
-  print_endline "unserializing:";
-  let nd' = time_print_return (fun () -> unserialize_from_file filename) in
+  let (_, serial_cpu, serial_wall) = time_return_times (fun () -> serialize_to_file nd filename) in
+  let (nd', unser_cpu, unser_wall) = time_return_times (fun () -> unserialize_from_file filename) in
   Core.Unix.unlink filename;
-  nd = nd'
+  nd = nd', [serial_cpu; serial_wall; unser_cpu; unser_wall]
 
 let test_serialize ?(size=1) cycles =
   let float_cycles = float cycles in
-  let (_, cpu_time, wall_time) = time_return_times 
-                                   (fun () ->
-                                     for i = 1 to cycles do
-                                       ignore(test_serialize_once ~size ())
-                                     done)
+  let init_times = [0.; 0.; 0.; 0.] in
+  let times = ref init_times in
+  for i = 1 to cycles do
+    let (_, new_times) = test_serialize_once ~size () in
+    times := List.map2 (+.) !times new_times
+  done;
+  let [avg_serial_cpu; avg_serial_wall; avg_unser_cpu; avg_unser_wall] = 
+        List.map (fun x -> x /. float_cycles) !times
   in
-  Printf.printf "\navg cpu: %fs, avg wall: %fs\n%!" 
-                (cpu_time /.  float_cycles)
-                (wall_time /.  float_cycles)
+  Printf.printf "\naverage serialization   cpu: %fs, wall: %fs\n%!" 
+  Printf.printf "\naverage unserialization cpu: %fs, wall: %fs\n%!" 
+  Printf.printf "%d trials with %dMB ndarrays\n!" cycles size
