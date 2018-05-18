@@ -79,7 +79,7 @@ let test_serialize_once nd =
   Core.Unix.unlink filename;
   nd = nd', [serial_cpu; serial_wall; unser_cpu; unser_wall]
 
-[@@@ warning "-8"] (* disable match warning https://stackoverflow.com/a/46006016/1455243 *)
+[@@@ warning "-8"] (* disable match warning on the list assignment. https://stackoverflow.com/a/46006016/1455243 *)
 let test_serialize mb cycles =
   let xdim, ydim, zdim = 1000, 1000, mb in
   let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
