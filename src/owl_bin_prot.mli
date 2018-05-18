@@ -71,6 +71,8 @@ val unserialize_from_file : string -> (float, Bigarray.float64_elt, Bigarray.c_l
 val multiply_array_elts : int array -> int
 (** Multiply together all elements of an [int array]. *)
 
+(* These should go somewhere else: *)
+
 val time_print_return : (unit -> 'a) -> 'a
 (** Run function that has unit arg, print timing info to stdout, and return 
     result. *)

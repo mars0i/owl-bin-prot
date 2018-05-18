@@ -7,6 +7,7 @@
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
 
+(* These should go somewhere else *)
 let time_print_return f =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
     let result = f () in
@@ -68,6 +69,7 @@ let unserialize buf =
 let unserialize_from_file filename =
   unserialize (load_serialized filename)
 
+(* Move these somewhere else: *)
 
 let test_serialize_once ?(size=1) () =
   let xdim, ydim, zdim = 1000, 1000, size in
