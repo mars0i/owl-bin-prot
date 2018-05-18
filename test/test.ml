@@ -14,6 +14,6 @@ let main () =
   let mb = int_of_string argv.(1) in
   let cycles = int_of_string argv.(2) in
   let gc = if num_args = 4 then bool_of_string argv.(3) else false in
-  Owl_bin_prot.Test_lib.test_serialise ~gc mb cycles
+  Owl_bin_prot.Test.test_serialise ~gc mb cycles
 
 let _ = main ()
