@@ -71,10 +71,15 @@ val unserialize_from_file : string -> (float, Bigarray.float64_elt, Bigarray.c_l
 val multiply_array_elts : int array -> int
 (** Multiply together all elements of an [int array]. *)
 
-val time : (unit -> 'a) -> 'a
-(** Run function that has unit arg, print timing info to stdout, and return result. *)
+val time_print_return : (unit -> 'a) -> 'a
+(** Run function that has unit arg, print timing info to stdout, and return 
+    result. *)
 
-val test_serialize : ?size:int -> unit -> bool
+val time_return_times : (unit -> 'a) -> 'a * float * float
+(** Run function that has unit arg, return its result as the first element 
+    of a triple.  The other elements are cpu time and wall time. *)
+
+val test_serialize : ?size:int -> int -> unit
 (** By default [test_serialize] creates an ndarray of size 10x20x30 with 
     [uniform]; if [~size] is provided, it is multiplied 3 to determine the
     last dimension.  Then the file is serialized to a temporary file.  The 

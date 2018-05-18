@@ -7,11 +7,18 @@
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
 
-let time f =
+let time_print_return f =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
     let result = f () in
     Printf.printf "cpu: %fs, wall: %fs\n%!" (Sys.time() -. cpu_time) (Unix.gettimeofday() -. wall_time);
     result
+
+let time_return_times f =
+    let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
+    let result = f () in
+    let cpu_time = Sys.time() -. cpu_time in
+    let wall_time = Unix.gettimeofday() -. wall_time in
+    (result, cpu_time, wall_time)
 
 let multiply_array_elts ra = Array.fold_left ( * ) 1 ra
 
@@ -62,15 +69,26 @@ let unserialize_from_file filename =
   unserialize (load_serialized filename)
 
 
-let test_serialize ?(size=1) () =
+let test_serialize_once ?(size=1) () =
   let xdim, ydim, zdim = 1000, 1000, size in
   let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
   Printf.printf "The test ndarray has size %dx%dx%d = %d\n%!" xdim ydim zdim (xdim * ydim * zdim);
   let filename = Core.Filename.temp_file "owl_bin_prot_test" "" in
   print_endline "serializing:";
-  time (fun () -> serialize_to_file nd filename);
+  time_print_return (fun () -> serialize_to_file nd filename);
   print_endline "unserializing:";
-  let nd' = time (fun () -> unserialize_from_file filename) in
+  let nd' = time_print_return (fun () -> unserialize_from_file filename) in
   Core.Unix.unlink filename;
   nd = nd'
 
+let test_serialize ?(size=1) cycles =
+  let float_cycles = float cycles in
+  let (_, cpu_time, wall_time) = time_return_times 
+                                   (fun () ->
+                                     for i = 1 to cycles do
+                                       ignore(test_serialize_once ~size ())
+                                     done)
+  in
+  Printf.printf "\navg cpu: %fs, avg wall: %fs\n%!" 
+                (cpu_time /.  float_cycles)
+                (wall_time /.  float_cycles)
