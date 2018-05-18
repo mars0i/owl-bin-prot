@@ -81,7 +81,7 @@ val time_return_times : (unit -> 'a) -> 'a * float * float
 (** Run function that has unit arg, return its result as the first element 
     of a triple.  The other elements are cpu time and wall time. *)
 
-val test_serialize_once : (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generic.t -> bool * float list
+val test_serialize_once : ?gc:bool -> (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generic.t -> bool * float list
 (** By default [test_serialize] creates an ndarray of size 1000x1000xsize
     (default: 1) with [Mat.uniform].  Then the file is serialized to a temporary 
     file.  The result is then unserialized from the file and checked to see if the
@@ -92,7 +92,7 @@ val test_serialize_once : (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generi
     operations, cpu time spent reading from disk and unserializing, and wall 
     time in those opeations. *)
 
-val test_serialize : int -> int -> unit
+val test_serialize : ?gc:bool -> int -> int -> unit
 (** TODO *)
 
 
