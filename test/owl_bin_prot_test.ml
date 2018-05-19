@@ -1,3 +1,4 @@
+(** owl_bin_prot_test.ml: Create and run speed tests on an Owl ndarray. *)
 
 let usage argv =
   print_string "Tests serializing and unserializing ndarrays to/from disk\n";
@@ -6,7 +7,6 @@ let usage argv =
                "collection between serialize and unserialize events (defaults to \"false\").\n");
   exit 1
 
-(* Yeah, arg handling is quick and dirty. Easier than any command line package.*)
 let main () =
   let open Sys in (* for argv *)
   let num_args = Array.length argv in
