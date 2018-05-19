@@ -19,11 +19,8 @@ let serialise x =
   let flat = ndarray_to_flattened x in
   let size = bin_size_flattened flat in
   let buf = create_buf size in
-  let num_written = bin_write_flattened buf 0 flat in
-  if num_written <> size
-  then failwith (Printf.sprintf "serialise: %d bytes serialised to a buffer for %d-bytes of data"
-                                num_written  size) (* QUESTION: Use a proper exception? (Can this really fail?) *)
-  else buf
+  ignore(bin_write_flattened buf 0 flat);
+  buf
 
 let save_serialised buf filename =
   let size = buf_len buf in
