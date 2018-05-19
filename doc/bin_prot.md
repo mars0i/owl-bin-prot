@@ -1,9 +1,9 @@
 Owl serialization with `bin_prot`
 ====
 
-`owl-serialization` provides functions for serializing Owl matrices and
-NDarrays using https://github.com/janestreet/bin_prot, among other
-things.
+`owl-serialization` provides functions for serializing Owl dense
+matrices and ndarrays using https://github.com/janestreet/bin_prot,
+among other things.
 
 ## Loading
 
