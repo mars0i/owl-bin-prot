@@ -1,10 +1,11 @@
-(** Functions for serializing Owl dense matrices and ndarrays to files. *)
+(** Owl_bin_prot.Serialise:
+    Functions for serialising Owl dense matrices and ndarrays to files. *)
 
 (** Note: Owl matrices are also Owl ndarrays, so everything said
     below about ndarrays also applies to matrices, vectors, etc. *)
 
 (** Type [flattened] hold dense ndarray data prior to/after 
-    serialization.
+    serialisation.
     [dims] should contained the dimensions of the original ndarray, and
     [vec] should contain a flattened version of the ndarray data.
     ([vec] is defined by [Bin_prot.common]; it is a 
@@ -12,14 +13,14 @@
 type flattened = { dims : int array; data : Bin_prot.Common.vec; }
 
 
-(** Functions for serializing and writing to a file: *)
+(** Functions for serialising and writing to a file: *)
 
 val ndarray_to_flattened : (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generic.t -> flattened
 (** Given an Owl ndarray [x], [ndarray_to_flattened x] returns a [flattened]
     in which the [dims] field contains the dimensions of the original ndarray,
     and the [data] field contains the same data in a 1D [fortran_layout]
     [Bigarray.Array1].  (This is used by [serialise], but can also be used
-    by serializatiion functions for more  complicated types in which
+    by serialisatiion functions for more  complicated types in which
     [flattened]s will be embedded.) *)
 
 val serialise : (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generic.t -> Bin_prot.Common.buf
@@ -43,7 +44,7 @@ val serialise_to_file : (float, Bigarray.float64_elt) Owl.Dense.Ndarray.Generic.
     [unserialise_from_file]. *)
 
 
-(** Functions for unserializing and loading from a file: *)
+(** Functions for unserialising and loading from a file: *)
 
 val load_serialised : string -> Bin_prot.Common.buf
 (** [load_serialised filename] reads a serialised [flattened] data structure
@@ -75,9 +76,9 @@ val multiply_array_elts : int array -> int
 (** The functions with names beginning with "bin_" below are defined 
     automatically via [[@@deriving bin_io]] frm the [flattened] type 
     definition. This process uses [ppx_bin_prot].  The definitions are 
-    used by higher-level serialization functions defined here, and can 
+    used by higher-level serialisation functions defined here, and can 
     also be used separately, of course. They will also be called if
-    you defined serializable types for embedded matrices/ndarrays using
+    you defined serialisable types for embedded matrices/ndarrays using
     [ppx_bin_prot]. *)
 
 val bin_flattened : flattened Bin_prot.Type_class.t
