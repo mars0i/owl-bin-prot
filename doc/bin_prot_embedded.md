@@ -2,11 +2,10 @@ Serializing embedded matrices/ndarrays
 ==
 
 What if you want to serialize a complex type that contains Owl dense
-matrices or ndarrays?
-You can create a corresponding type in which the `flattened` type is
-embedded.  This is the type that's used as an intermediate storage
-format for Owl matrices/ndarrays.  It's actually instances of
-`flattened` that are serialized.
+matrices or ndarrays?  You can create a corresponding type in which the
+`flattened` type is embedded.  This is the type that's used as an
+intermediate storage format for Owl matrices/ndarrays.  It's actually
+instances of `flattened` that are serialized.
 
 The idea is that you define the type containing `flattened`s using
 `[@@deriving bin_io]`, and that will generate special purpose
@@ -16,25 +15,25 @@ structures you use to embed the Owl matrices or ndarrays.
 Then you can serialize data to a file form using the new functions along
 with `save_serialized` and `load_serialized` from `Owl_bin_prot`.
 
-Here is an example in `utop`, running it from the repo directory.  Doing
-this in `utop` allows us to see what functions are created by
-`[@@deriving bin_io]`.  (The first `#` on each line is `utop`'s.  See
+Here is an example in `utop`, running it from the repo directory.
+(Doing this in `utop` allows us to see what functions are created by
+`[@@deriving bin_io]`.  The first `#` on each line is `utop`'s.  See
 `src/jbuild` for an illustration of what you need to do to use
 `ppx_bin_prot` with `dune/jbuilder`.)
 
-Start `utop` like this:
-
+Start `utop` with
+```
+`jbuilder utop src/owl_bin_prot`
+```
+or use
 ```
 utop -I ./_build/install/default/lib/owl_bin_prot
 ```
-
-or start it with `jbuilder utop src`, in which case you can skip the
-third step below.
+and then execute `#load "owl_bin_prot"` in `utop`.
 
 ```OCaml
 # #require "ppx_bin_prot";;
 # open Bin_prot.Std;;
-# #load "owl_bin_prot.cma";;
 
 (* Define an intermediate type for lists of Owl ndarrays, along
    with serialization helper functions: *)
