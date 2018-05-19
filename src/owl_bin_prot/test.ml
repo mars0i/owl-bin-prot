@@ -1,4 +1,6 @@
-
+(** Owl_bin_prot.Test:
+    Functions for speed tests on Owl_bin_prot serialisation functions.
+    These also be used as the basis of regression tests. *)
 
 let time_print_return f =
     let cpu_time, wall_time = Sys.time(), Unix.gettimeofday() in
@@ -27,8 +29,8 @@ let test_serialise_once ?(gc=false) nd =
   nd = nd', [serial_cpu; serial_wall; unser_cpu; unser_wall]
 
 [@@@ warning "-8"] (* disable match warning on the list assignment. https://stackoverflow.com/a/46006016/1455243 *)
-let test_serialise ?(gc=false) mb cycles =
-  let xdim, ydim, zdim = 1000, 1000, mb in
+let test_serialise ?(gc=false) m cycles =
+  let xdim, ydim, zdim = 1000, 1000, m in
   let nd = Owl.Arr.uniform [| xdim ; ydim ; zdim |] in
   let float_cycles = float cycles in
   let init_times = [0.; 0.; 0.; 0.] in
@@ -40,7 +42,7 @@ let test_serialise ?(gc=false) mb cycles =
   let [avg_serial_cpu; avg_serial_wall; avg_unser_cpu; avg_unser_wall] = 
         List.map (fun x -> x /. float_cycles) !times
   in
-  Printf.printf "%d trials with a %dM-element ndarray:\n%!" cycles mb;
-  Printf.printf "average for serialization:   cpu: %fs, wall: %fs\n%!" avg_serial_cpu avg_serial_wall;
-  Printf.printf "average for unserialization: cpu: %fs, wall: %fs\n%!" avg_unser_cpu  avg_unser_wall
+  Printf.printf "%d trials with a %dM-element ndarray:\n%!" cycles m;
+  Printf.printf "average for serialisation:   cpu: %fs, wall: %fs\n%!" avg_serial_cpu avg_serial_wall;
+  Printf.printf "average for unserialisation: cpu: %fs, wall: %fs\n%!" avg_unser_cpu  avg_unser_wall
 [@@@ warning "+8"]
