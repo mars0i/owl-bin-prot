@@ -1,5 +1,5 @@
 (** Owl_bin_prot.Serialise:
-    Functions for serialzing Owl data using bin_prot. *)
+    Functions for serializing Owl dense matrices and ndarrays to files. *)
 
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
