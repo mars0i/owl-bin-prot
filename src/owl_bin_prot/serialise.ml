@@ -1,8 +1,5 @@
-
-(* TODO: Consider hiding
-   the ppx_bin_prot-generated functions.  (If it's possible to
-   embed some data structure here in a larger structure, maybe
-   those functions need to visible??) *)
+(** Owl_bin_prot.Serialise:
+    Functions for serialzing Owl data using bin_prot. *)
 
 open Bin_prot.Std    (* for @@deriving bin_prot *)
 open Bin_prot.Common (* for @@deriving bin_prot *)
@@ -20,14 +17,24 @@ let ndarray_to_flattened x =
 
 let serialise x =
   let flat = ndarray_to_flattened x in
-  let buf = create_buf (bin_size_flattened flat) in
-  ignore (bin_write_flattened buf 0 flat);(* TODO maybe store return bytes read and compare with size and throw exception *)
-  buf
+  let size = bin_size_flattened flat in
+  let buf = create_buf size in
+  let num_written = bin_write_flattened buf 0 flat in
+  if num_written <> size
+  then failwith (Printf.sprintf "serialise: %d bytes serialised to a buffer for %d-bytes of data"
+                                num_written  size) (* QUESTION: Use a proper exception? (Can this really fail?) *)
+  else buf
 
 let save_serialised buf filename =
   let size = buf_len buf in
   let write_file fd = Core.Bigstring.write fd ~pos:0 ~len:size buf in
-  ignore(Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file) (* O_TRUNC ... What should be done if the file exists? *)
+  let num_written =
+    Core.Unix.with_file filename ~mode:[O_WRONLY; O_CREAT; O_TRUNC] ~f:write_file (* QUESTION: O_TRUNC ... What should be done if the file exists? *)
+  in
+  if num_written <> size
+  then failwith (Printf.sprintf "serialise: %d bytes written to file for a %d-byte buffer"
+                                num_written  size) (* QUESTION: Use a proper exception? *)
+  else ()
 
 let serialise_to_file x filename =
   save_serialised (serialise x) filename
@@ -35,11 +42,14 @@ let serialise_to_file x filename =
 
 let load_serialised filename =
   let read_file fd =
-    let stats = Core.Unix.fstat fd in  (* Will this work correctly on symbolic links? If not use stat on the filename. *)
+    let stats = Core.Unix.fstat fd in  (* QUESTION: Will this work correctly on symbolic links? If not use stat on the filename. *)
     let size = Int64.to_int (stats.st_size) in
     let buf = Bin_prot.Common.create_buf size in
-    ignore(Core.Bigstring.read ~pos:0 ~len:size fd buf); (* TODO maybe store return bytes read and compare with size and throw exception *)
-    buf
+    let num_read = Core.Bigstring.read ~pos:0 ~len:size fd buf in
+    if num_read <> size
+    then failwith (Printf.sprintf "load_serialised: %d bytes read from a %d-byte file"
+                                  num_read size) (* Use a proper exception? *)
+    else buf
   in Core.Unix.(with_file filename ~mode:[O_RDONLY] ~f:read_file)
 
 let flattened_to_ndarray flat =
